@@ -1,0 +1,203 @@
+# Quantitative analysis of lacewing larvae over more than 100 million years 
+# reveals a complex pattern of loss of morphological diversity
+# Carolin Haug, Florian Braig, Joachim T. Haug
+
+require(ggplot2)
+require(RColorBrewer)
+require(dispRity)
+require(1234)
+
+
+# GGPLOTS OF SHAPE DATA --------------------------------------------------------
+
+# Import data set "shape" with all PC coordinates
+# Normal plot according to the time classes 1 = K; 2 = Eoc; 3 = Mio; 4 = extant
+# States for the variables for each specimen listed in the data file in the 
+# suppl. data
+
+ggplot(data, aes(x = PC1, y = PC2, color = time)) + 
+  geom_point() +
+  scale_color_manual(values = c("orange", "cyan", "purple", "red")) +
+  stat_ellipse(geom = 'polygon', alpha = .05, aes(fill = time)) + 
+  scale_fill_manual(values = c("orange", "cyan", "purple", "red")) +
+  coord_fixed (ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE) +
+  theme_gray()
+
+# We used these plots to visualize the morphospaces
+
+# Plot with different colours, highlighting one group with ellipses but extant
+# and fossils separately
+ggplot(data, aes(x = PC1, y = PC2, color = Group_grouped, shape = status)) + 
+  geom_point() +
+  geom_mark_ellipse(data = ohne_conio %>%  
+                      filter(Group_grouped == "Myrmeleontiformia"),
+                      aes(color = Group_grouped, label = Group_grouped), 
+                    expand = 0.01) +
+  scale_color_manual(values = c('#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', 
+                                '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00',
+                                '#cab2d6', '#6a3d9a')) +
+  coord_fixed (ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE) +
+  theme_grey()
+
+
+# Disparity analysis of Neuroptera comparing time slices  ----------------------
+
+
+# Disparity Osmyloidea
+
+#dataset "m_1065" contains descriptive variables and all PC corrdinates
+
+df <- subset(m_1065, subset = Group_tree == "osmyloidea")
+# subsetting data for within group comparison
+data <- data.frame(df[, 7:13])
+# only PC coordinates in the data frame, no descriptors
+group.v <- data.frame(df$time)
+# variabel for comparison
+rownames(data) <- 1:nrow(data)
+osmy_subsets <- custom.subsets(data, group = group.v)
+minimum_size <- min(size.subsets(osmy_subsets))
+# smallest sample size for sample size correction
+osmy_bootstrapped <- boot.matrix(data = osmy_subsets, 
+                                 bootstraps = 10000, 
+                                 rarefaction = minimum_size)
+osmy_size <- dispRity(data = osmy_bootstrapped, 
+                            metric = c(sum, variances))
+# Sum of variances as measure for size occupation within morphospace
+summary(osmy_size)
+plot(osmy_size, rarefaction = 6)
+
+
+# Disparity Mantispoidea+Dilaridae
+
+df <- subset(m_1065, subset = Group_tree == "mantisdila")
+data <- data.frame(df[, 7:13]) 
+group.v <- data.frame(df$time)
+rownames(data) <- 1:nrow(data)
+madi_subsets <- custom.subsets(data, group = group.v)
+minimum_size <- min(size.subsets(madi_subsets))
+madi_bootstrapped <- boot.matrix(data = madi_subsets, 
+                                 bootstraps = 10000, 
+                                 rarefaction = minimum_size)
+madi_size <- dispRity(data = madi_bootstrapped, 
+                      metric = c(sum, variances))
+summary(madi_size)
+plot(madi_size, rarefaction = 3)
+
+
+# Disparity Chrysopidae+Hemerobiidae
+
+df <- subset(m_1065, subset = Group_tree == "chryshem")
+data <- data.frame(df[, 7:13]) 
+group.v <- data.frame(df$time)
+rownames(data) <- 1:nrow(data)
+chhe_subsets <- custom.subsets(data, group = group.v)
+minimum_size <- min(size.subsets(chhe_subsets))
+chhe_bootstrapped <- boot.matrix(data = chhe_subsets, 
+                                 bootstraps = 10000, 
+                                 rarefaction = minimum_size)
+chhe_size <- dispRity(data = chhe_bootstrapped, 
+                      metric = c(sum, variances))
+summary(chhe_size)
+plot(chhe_size, rarefaction = 3)
+
+
+# Disparity Psychopsidae
+
+df <- subset(m_1065, subset = Group_tree == "psychopsidae")
+data <- data.frame(df[, 7:13]) 
+group.v <- data.frame(df$time)
+rownames(data) <- 1:nrow(data)
+psyc_subsets <- custom.subsets(data, group = group.v)
+minimum_size <- min(size.subsets(psyc_subsets))
+psyc_bootstrapped <- boot.matrix(data = psyc_subsets, 
+                                 bootstraps = 10000, 
+                                 rarefaction = minimum_size)
+psyc_size <- dispRity(data = psyc_bootstrapped, 
+                      metric = c(sum, variances))
+summary(psyc_size)
+plot(psyc_size, rarefaction = 10)
+
+
+# Disparity Nymphidae
+
+df <- subset(m_1065, subset = Group_tree == "nymphidae")
+df <- df[-22, ] # ONLY ONE FOSSIL FROM AGE 2, THIS MUST BE OMITTED
+data <- data.frame(df[, 7:13]) 
+group.v <- data.frame(df$time)
+rownames(data) <- 1:nrow(data)
+nymp_subsets <- custom.subsets(data, group = group.v)
+minimum_size <- min(size.subsets(nymp_subsets))
+nymp_bootstrapped <- boot.matrix(data = nymp_subsets, 
+                                 bootstraps = 10000, 
+                                 rarefaction = minimum_size)
+nymp_size <- dispRity(data = nymp_bootstrapped, 
+                      metric = c(sum, variances))
+summary(nymp_size)
+plot(nymp_size, rarefaction = 13)
+
+# Disparity Myrmeleontidae+Ascalaphidae
+
+df <- subset(m_1065, subset = Group_tree == "myrmasc")
+data <- data.frame(df[, 7:13]) 
+df <- df[-c(253, 254), ] # ONLY TWO FOSSILS FROM AGE 2, THIS MUST BE OMITTED
+group.v <- data.frame(df$time)
+rownames(data) <- 1:nrow(data)
+myas_subsets <- custom.subsets(data, group = group.v)
+minimum_size <- min(size.subsets(myas_subsets))
+myas_bootstrapped <- boot.matrix(data = myas_subsets, 
+                                 bootstraps = 10000, 
+                                 rarefaction = minimum_size)
+myas_size <- dispRity(data = myas_bootstrapped, 
+                      metric = c(sum, variances))
+summary(myas_size)
+plot(myas_size, rarefaction = 9)
+
+
+# Disparity Nemopteridae
+
+df <- subset(m_1065, subset = Group_tree == "nemopteridae")
+data <- data.frame(df[, 7:13]) 
+group.v <- data.frame(df$time)
+rownames(data) <- 1:nrow(data)
+nemo_subsets <- custom.subsets(data, group = group.v)
+minimum_size <- min(size.subsets(nemo_subsets))
+nemo_bootstrapped <- boot.matrix(data = nemo_subsets, 
+                                 bootstraps = 10000, 
+                                 rarefaction = minimum_size)
+nemo_size <- dispRity(data = nemo_bootstrapped, 
+                      metric = c(sum, variances))
+summary(nemo_size)
+plot(nemo_size, rarefaction = 14)
+
+
+# Disparity MYrmeleontiforima
+
+df <- subset(m_1065, subset = Group_grouped == "Myrmeleontiformia")
+data <- data.frame(df[, 7:13]) 
+group.v <- data.frame(df$time)
+rownames(data) <- 1:nrow(data)
+myrm_subsets <- custom.subsets(data, group = group.v)
+minimum_size <- min(size.subsets(myrm_subsets))
+myrm_bootstrapped <- boot.matrix(data = myrm_subsets, 
+                                 bootstraps = 10000, 
+                                 rarefaction = minimum_size)
+myrm_size <- dispRity(data = myrm_bootstrapped, 
+                      metric = c(sum, variances))
+summary(myrm_size)
+plot(myrm_size, rarefaction = 9)
+
+
+# Disparity Neuroptera
+
+data <- data.frame(m_1065[, 7:13]) 
+group.v <- data.frame(m_1065$time)
+rownames(data) <- 1:nrow(data)
+neur_subsets <- custom.subsets(data, group = group.v)
+minimum_size <- min(size.subsets(neur_subsets))
+neur_bootstrapped <- boot.matrix(data = neur_subsets, 
+                                 bootstraps = 10000, 
+                                 rarefaction = minimum_size)
+neur_size <- dispRity(data = neur_bootstrapped, 
+                      metric = c(sum, variances))
+summary(neur_size)
+plot(neur_size, rarefaction = 12)
