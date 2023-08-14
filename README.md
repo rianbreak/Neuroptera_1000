@@ -1,5 +1,6 @@
 # Overview
-This repository contains code used in the analysis of the manuscript titled "Quantitative analysis of lacewing larvae over more than 100 million years reveals a complex pattern of loss of morphological diversity" Haug et al. 2022 (REF).
+This repository contains code used in the analysis of the manuscript titled "Quantitative analysis of lacewing larvae over more than 100 million years reveals a complex pattern of loss of morphological diversity" - Haug, C., Braig, F. & Haug, J.T., Scientific Reports 13, 6127. 
+https://doi.org/10.1038/s41598-023-32103-8
 
 Data used for the analysis is collected from multiple studies, listed in the publication.
 
